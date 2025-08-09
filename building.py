@@ -17,11 +17,11 @@ class Building:
 
 
 class Road(Building):
-    def __init__(self, owner_ID, q1, q2, r1, r2):
+    def __init__(self, owner_ID, hex_1, hex_2):
         super().__init__(owner_ID)
 
-        self.q = (q1, q2)
-        self.r = (r1, r2)
+        self.hex_1 = hex_1
+        self.hex_2 = hex_2
 
     def get_pop(self):
         return 0

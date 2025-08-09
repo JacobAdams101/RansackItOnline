@@ -23,7 +23,6 @@ def draw_unit(canvas, x, y, colour, text):
 class Unit:
     def __init__(self, owner_ID):
         self.owner_ID = owner_ID
-
         self.unit_colour = player.PLAYER_COLOURS[owner_ID]
 
     def draw(self, canvas, x, y):
@@ -34,6 +33,12 @@ class Unit:
     
     def can_work_tiles(self):
         return False
+    
+    def can_build(self):
+        return False
+    
+    def get_movement(self):
+        return {"WALK" : 1, "SWIM" : 2, "FLY" : 0}
 
 class Worker(Unit):
     def __init__(self, owner_ID):
@@ -47,6 +52,12 @@ class Worker(Unit):
     
     def can_work_tiles(self):
         return True
+    
+    def can_build(self):
+        return True
+    
+    def get_movement(self):
+        return {"WALK" : 1, "SWIM" : 2, "FLY" : 0}
 
 class Warrior(Unit):
     def __init__(self, owner_ID):
@@ -60,6 +71,12 @@ class Warrior(Unit):
     
     def can_work_tiles(self):
         return False
+    
+    def can_build(self):
+        return False
+    
+    def get_movement(self):
+        return {"WALK" : 1, "SWIM" : 2, "FLY" : 0}
 
 class Knight(Unit):
     def __init__(self, owner_ID):
@@ -73,6 +90,12 @@ class Knight(Unit):
     
     def can_work_tiles(self):
         return False
+    
+    def can_build(self):
+        return False
+    
+    def get_movement(self):
+        return {"WALK" : 1, "SWIM" : 2, "FLY" : 0}
 
 class Cannon(Unit):
     def __init__(self, owner_ID):
@@ -87,6 +110,12 @@ class Cannon(Unit):
     def can_work_tiles(self):
         return False
     
+    def can_build(self):
+        return False
+    
+    def get_movement(self):
+        return {"WALK" : 1, "SWIM" : 2, "FLY" : 0}
+    
 class Dragon(Unit):
     def __init__(self, owner_ID):
         super().__init__(owner_ID)
@@ -99,3 +128,9 @@ class Dragon(Unit):
     
     def can_work_tiles(self):
         return False
+    
+    def can_build(self):
+        return False
+    
+    def get_movement(self):
+        return {"WALK" : 0, "SWIM" : 0, "FLY" : 2}

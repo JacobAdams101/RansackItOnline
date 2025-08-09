@@ -17,6 +17,7 @@ import math
 import unit
 import rescource
 import player
+import building
 
 OCEAN_HEX = "OCEAN"
 PLAINS_HEX = "PLAINS"
@@ -179,12 +180,28 @@ class Hex:
             #Find if any unit works the tiles
             for u in self.units:
                 if u.can_work_tiles():
-                    return u.owner_ID
+                    return u.owner_ID, "WORKER"
 
             #If there are no units
             return None
         
-        return self.buildings.owner_ID
+        #Check for central settlement
+        for b in self.buildings:
+            if isinstance(b, building.Village):
+                return b.owner_ID, "VILLAGE"
+            elif isinstance(b, building.Town):
+                return b.owner_ID, "TOWN"
+            elif isinstance(b, building.City):
+                return b.owner_ID, "CITY"
+
+        #Look for connected settlement     
+        for b in self.buildings:
+            if isinstance(b, building.Road):
+                if b.hex_1 == self:
+                    return b.hex_2.who_gets_rescources()
+                else:
+                    return b.hex_1.who_gets_rescources()
+
         
 
         
