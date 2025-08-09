@@ -159,7 +159,7 @@ class Hex:
         self.hex_select_object = None
 
     def draw(self, canvas, q, r):
-        return None
+        pass
     
 
     def get_objects(self):
@@ -172,6 +172,21 @@ class Hex:
                 event, 
                 func
                 )
+            
+    def who_gets_rescources(self):
+        if len(self.buildings) == 0:
+            #If there are no buildings
+            #Find if any unit works the tiles
+            for u in self.units:
+                if u.can_work_tiles():
+                    return u.owner_ID
+
+            #If there are no units
+            return None
+        
+        return self.buildings.owner_ID
+        
+
         
 
 class OceanHex(Hex):
