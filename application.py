@@ -10,7 +10,7 @@
 # Module imports
 ##################################################
 import tkinter as tk
-import map
+import game
 import math
 
 APP_NAME = "RansackIt"
@@ -45,9 +45,9 @@ class GameFrame(BaseFrame):
     #Create the base widgets for the frame.
     def create_widgets(self):
         # Configure 3 columns
-        game_map = map.Map(20, 10)
+        my_game = game.Game(self)
 
-        self.canvas = game_map.draw_map(self)
+        self.canvas = my_game.draw()
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.canvas.grid(row=0, column=0, sticky="nsew")

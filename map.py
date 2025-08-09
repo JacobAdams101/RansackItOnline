@@ -15,6 +15,8 @@ import random
 import math
 
 import unit
+import rescource
+import player
 
 OCEAN_HEX = "OCEAN"
 PLAINS_HEX = "PLAINS"
@@ -158,6 +160,18 @@ class Hex:
 
     def draw(self, canvas, q, r):
         return None
+    
+
+    def get_objects(self):
+        return [self.hex_object, self.hex_select_object]
+    
+    def bind_elements(self, canvas, func, event):
+        for o in self.get_objects():
+            canvas.tag_bind(
+                o, 
+                event, 
+                func
+                )
         
 
 class OceanHex(Hex):
@@ -175,6 +189,9 @@ class OceanHex(Hex):
         
     def draw(self, canvas, q, r):
         self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
+
+    def get_rescources(type):
+        return []
         
 class DesertHex(Hex):
     def __init__(self, rescource_number):
@@ -189,6 +206,9 @@ class DesertHex(Hex):
     
     def draw(self, canvas, q, r):
         self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
+
+    def get_rescources(type):
+        return []
         
 class PlainsHex(Hex):
     def __init__(self, rescource_number):
@@ -203,6 +223,9 @@ class PlainsHex(Hex):
         
     def draw(self, canvas, q, r):
         self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
+
+    def get_rescources(type):
+        return []
         
 class FarmHex(Hex):
     def __init__(self, rescource_number):
@@ -217,6 +240,16 @@ class FarmHex(Hex):
         
     def draw(self, canvas, q, r):
         self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
+
+    def get_rescources(type):
+        if type == "VILLAGE":
+            return [rescource.Rescource(rescource.RESCOURCE_FOOD, 1)]
+        elif type == "TOWN":
+            return [rescource.Rescource(rescource.RESCOURCE_FOOD, 2)]
+        elif type == "CITY":
+            return [rescource.Rescource(rescource.RESCOURCE_FOOD, 2)]
+        elif type == "WORKER":
+            return [rescource.Rescource(rescource.RESCOURCE_FOOD, 1)]
         
 class ForestHex(Hex):
     def __init__(self, rescource_number):
@@ -231,6 +264,16 @@ class ForestHex(Hex):
         
     def draw(self, canvas, q, r):
         self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
+
+    def get_rescources(type):
+        if type == "VILLAGE":
+            return [rescource.Rescource(rescource.RESCOURCE_WOOD, 1)]
+        elif type == "TOWN":
+            return [rescource.Rescource(rescource.RESCOURCE_WOOD, 2)]
+        elif type == "CITY":
+            return [rescource.Rescource(rescource.RESCOURCE_WOOD, 2)]
+        elif type == "WORKER":
+            return [rescource.Rescource(rescource.RESCOURCE_WOOD, 1)]
         
 class HillsHex(Hex):
     def __init__(self, rescource_number):
@@ -246,6 +289,16 @@ class HillsHex(Hex):
     def draw(self, canvas, q, r):
         self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
 
+    def get_rescources(type):
+        if type == "VILLAGE":
+            return [rescource.Rescource(rescource.RESCOURCE_BRICK, 1)]
+        elif type == "TOWN":
+            return [rescource.Rescource(rescource.RESCOURCE_BRICK, 2)]
+        elif type == "CITY":
+            return [rescource.Rescource(rescource.RESCOURCE_BRICK, 2)]
+        elif type == "WORKER":
+            return [rescource.Rescource(rescource.RESCOURCE_BRICK, 1)]
+
 class MountainsHex(Hex):
     def __init__(self, rescource_number):
         super().__init__(
@@ -260,12 +313,22 @@ class MountainsHex(Hex):
     def draw(self, canvas, q, r):
         self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
 
+    def get_rescources(type):
+        if type == "VILLAGE":
+            return [rescource.Rescource(rescource.RESCOURCE_ORE, 1)]
+        elif type == "TOWN":
+            return [rescource.Rescource(rescource.RESCOURCE_ORE, 2)]
+        elif type == "CITY":
+            return [rescource.Rescource(rescource.RESCOURCE_ORE, 2)]
+        elif type == "WORKER":
+            return [rescource.Rescource(rescource.RESCOURCE_ORE, 1)]
+
 HEX_ORDER = [FarmHex, ForestHex, HillsHex, MountainsHex, OceanHex, PlainsHex, OceanHex, DesertHex, OceanHex, FarmHex, OceanHex, ForestHex, OceanHex, HillsHex, OceanHex, OceanHex, OceanHex]
 NUMBER_ORDER = [6, 8, 5, 9, 4, 10, 3, 11, 2, 12, 5, 9]
 
 
 class Map:
-    def __init__(self, width, height):
+    def __init__(self, width, height, game):
         #Write dimensions
         self.width = width
         self.height = height
@@ -317,6 +380,9 @@ class Map:
 
                         del harbor_deck[index]
                         break
+        
+        self.game = game
+        self.canvas = game.canvas
 
     def get_hex(self, x, y):
         if 0 <= x < self.width and 0 <= y < self.height:
@@ -328,6 +394,12 @@ class Map:
     def on_hex_click(self, e, q, r, hex_tile):
 
         print(f"Hex clicked at ({q},{r}), type: {type(hex_tile).__name__}")
+
+        hex_tile.units.append(unit.Warrior(1))
+
+        self.game.draw()
+        
+        
 
     def on_hex_enter(self, e, q, r, hex_tile):
         for q in range(len(self.world)):
@@ -344,11 +416,8 @@ class Map:
             self.canvas.itemconfigure(hex_tile.hex_select_object, state="hidden")   
 
 
-    def draw_map(self, master):
-        # Create a canvas to draw the map
-        self.canvas = tk.Canvas(master, bg="black", width=1000, height=8000)
+    def draw(self):
 
-                
 
         # Loop through world grid and draw lower hexagons
         for q in range(len(self.world)):
@@ -377,24 +446,21 @@ class Map:
             for r in range(len(self.world[q])):
                 hex_tile = self.world[q][r]
 
-                self.canvas.tag_bind(
-                    hex_tile.hex_object, 
-                    "<Button-1>", 
-                    lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_click(e, q, r, hex_tile) #NOTE: lambda using optionals as otherwise broken
+                #Mouse click hex
+                hex_tile.bind_elements(
+                    self.canvas, 
+                    lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_click(e, q, r, hex_tile), #NOTE: lambda using optionals as otherwise broken
+                    "<Button-1>"
+                    )
+
+                #Mouse enter hex
+                hex_tile.bind_elements( 
+                    self.canvas, 
+                    lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_enter(e, q, r, hex_tile), #NOTE: lambda using optionals as otherwise broken
+                    "<Enter>"
                     )
                 
-                self.canvas.tag_bind(
-                    hex_tile.hex_object, 
-                    "<Enter>", 
-                    lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_enter(e, q, r, hex_tile) #NOTE: lambda using optionals as otherwise broken
-                    )
-                """
-                self.canvas.tag_bind(
-                    hex_tile.hex_object, 
-                    "<Leave>", 
-                    lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_leave(e, q, r, hex_tile) #NOTE: lambda using optionals as otherwise broken
-                    )
-                """
+                
 
         return self.canvas
 

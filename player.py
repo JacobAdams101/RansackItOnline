@@ -9,89 +9,26 @@
 ##################################################
 # Module imports
 ##################################################
+import rescource
 
-##################################################
-# Inventory
-##################################################
-class Rescource:
-    def __init__(self, name, amount):
-        self.name = name
-        self.amount = amount
-
-class Inventory:
-    def __init__(self, name):
-        self.name = name
-        self.inventory = []
-
-    def add(self, rescources=[]):
-        for r in rescources:
-            matched = False
-            for i in self.inventory:
-                if i.name == r.name:
-                    i.amount += r.amount
-                    matched = True
-                    break
-            if not matched:
-                self.inventory.append(r)
-    
-    def _min_set_(self, rescources=[]):
-        new_set = []
-        for r in rescources:
-            matched = False
-            for i in new_set:
-                if i.name == r.name:
-                    i.amount += r.amount
-                    matched = True
-                    break
-            if not matched:
-                new_set.append(r)
-        
-        return new_set
-
-    def contains(self, rescources=[]):
-        rescources = self._min_set_(rescources)
-        for r in rescources:
-            matched = False
-            for i in self.inventory:
-                if i.name == r.name:
-                    matched = i.amount >= r.amount
-                    break
-            if not matched:
-                return False
-        return True
-    
-    def remove(self, rescources=[]):
-        if not self.contains(rescources=rescources):
-            return False
-        
-        for r in rescources:
-            matched = False
-            for i in self.inventory:
-                if i.name == r.name:
-                    i.amount -= r.amount
-                    matched = True
-                    break
-            if not matched:
-                self.inventory.append(r)
-
-        i = 0 
-        while i < len(self.inventory):
-            item = self.inventory[i]
-            if item.amount == 0:
-                del self.inventory[i]
-            else:
-                i += 1
-
-
-        
-
-
-
+PLAYER_COLOURS = {
+    0 : "#cf0000",
+    1 : "#cfcf00",
+    2 : "#00cf00",
+    3 : "#0000cf",
+    4 : "#cf00cf",
+    5 : "#00cfcf"
+    }
 
 
 ##################################################
 # Player class
 ##################################################
 class Player:
-    def __init__(self, name):
+    def __init__(self, ID, name, inventory=rescource.Inventory):
+        self.ID = ID
         self.name = name
+        self.inventory = inventory
+
+    def get_colour(self):
+        return PLAYER_COLOURS[self.ID]
