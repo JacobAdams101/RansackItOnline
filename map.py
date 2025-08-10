@@ -91,7 +91,10 @@ def draw_hex(canvas, q, r, y_offset, fill_color, harbor, units, buildings, resco
         harbor.draw(canvas, q, r)
 
     for i, u in enumerate(units):
-        u.draw(canvas, x_center + i*8, y_center)
+        angle = (60 * i) * 3.14159 / 180
+        x_i = x_center + (hex_size//2) * (math.sin(angle))
+        y_i = y_center + (hex_size//2) * (math.cos(angle))
+        u.draw(canvas, x_i, y_i)
 
     hex_select_object = canvas.create_oval(
             x_center-RESCOURCE_NUMBER_RADIUS-3, 
@@ -183,7 +186,7 @@ class Hex:
                     return u.owner_ID, "WORKER"
 
             #If there are no units
-            return None
+            return None, None
         
         #Check for central settlement
         for b in self.buildings:
@@ -360,7 +363,7 @@ NUMBER_ORDER = [6, 8, 5, 9, 4, 10, 3, 11, 2, 12, 5, 9]
 
 
 class Map:
-    def __init__(self, width, height, game):
+    def __init__(self, width, height, canvas, on_hex_click_func, on_unit_click_func):
         #Write dimensions
         self.width = width
         self.height = height
@@ -413,26 +416,20 @@ class Map:
                         del harbor_deck[index]
                         break
         
-        self.game = game
-        self.canvas = game.canvas
+        self.canvas = canvas
+
+        #Function calls for game
+        self.on_hex_click_func = on_hex_click_func
+        self.on_unit_click_func = on_unit_click_func
 
     def get_hex(self, x, y):
         if 0 <= x < self.width and 0 <= y < self.height:
             return self.world[x][y]
         else:
             return None
-    
-
-    def on_hex_click(self, e, q, r, hex_tile):
-
-        print(f"Hex clicked at ({q},{r}), type: {type(hex_tile).__name__}")
-
-        hex_tile.units.append(unit.Warrior(1))
-
-        self.game.draw()
         
         
-
+    #Visual stuff
     def on_hex_enter(self, e, q, r, hex_tile):
         for q in range(len(self.world)):
             for r in range(len(self.world[q])):
@@ -481,7 +478,7 @@ class Map:
                 #Mouse click hex
                 hex_tile.bind_elements(
                     self.canvas, 
-                    lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_click(e, q, r, hex_tile), #NOTE: lambda using optionals as otherwise broken
+                    lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_click_func(e, q, r, hex_tile), #NOTE: lambda using optionals as otherwise broken
                     "<Button-1>"
                     )
 

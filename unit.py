@@ -11,14 +11,15 @@
 ##################################################
 
 import tkinter as tk
-import random
-import math
 
 import player
 
-def draw_unit(canvas, x, y, colour, text):
-    canvas.create_rectangle(x, y, x+16, y+16, fill=colour)
-    canvas.create_text(x+8, y+8, text=text, fill="white", font=("Arial",8))
+UNIT_RADIUS = 6
+
+def draw_unit(canvas, x, y, colour, text, unit_radius=UNIT_RADIUS):
+    unit_object = canvas.create_rectangle(x-unit_radius, y-unit_radius, x+unit_radius, y+unit_radius, fill=colour)
+    unit_text_object = canvas.create_text(x, y, text=text, fill="black", font=("Arial",8))
+    return unit_object, unit_text_object
 
 class Unit:
     def __init__(self, owner_ID):

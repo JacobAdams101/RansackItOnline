@@ -19,6 +19,7 @@ import rescource
 import player
 import dice
 import map
+import building
 
 
 
@@ -32,39 +33,79 @@ class Game:
             players=[player.Player(0, "Player 1"), player.Player(1, "Player 2")]
             ):
         
+        self.width = 1000
+        self.height = 700
+
         self.master = master
-        self.canvas = tk.Canvas(self.master, bg="black", width=1000, height=8000)
+        self.canvas = tk.Canvas(self.master, bg="black", width=self.width, height=self.height)
 
         self.players = players
         self.player_turn = 0
         self.round = 0
 
         #Create the map
-        self.map = map.Map(20, 10, self)
+        self.map = map.Map(20, 10, self.canvas, self.on_hex_click, self.on_unit_click)
 
+    def is_founding_turn(self):
+        return self.round == 0
+    
+    def get_player_turn(self):
+        return self.players[self.player_turn]
+    
     def draw(self):
         self.canvas.delete("all")
         self.map.draw()
 
+        if self.is_founding_turn():
+            self.players[self.player_turn].draw(self.canvas, 0, self.height-100, message="Found your city")
+
+            self.players[self.player_turn].inventory.draw(self.canvas, 138, self.height-100)
+        else:
+            self.players[self.player_turn].draw(self.canvas, 0, self.height-100, message="It's your turn!")
+
+            self.players[self.player_turn].inventory.draw(self.canvas, 138, self.height-100)
+
         return self.canvas
+    
+    def num_players(self):
+        return len(self.players)
+    
+    def next_turn(self):
+        self.player_turn += 1
+        if self.player_turn == self.num_players():
+            self.player_turn = 0
+            self.round += 1
+
+        self.run_turn()
+
+    #An alias for run turn to make it more obvious this is how the game starts
+    def start_game(self):
+        self.run_turn()
     
     """
     Run a player's turn
     """
-    def run_turn(self, p):
-        #Taxes
-        self.add_taxes(p)
-
-        #Resources
-        #Roll dice
-        dice_1 = dice.roll_dice(6)
-        dice_2 = dice.roll_dice(6)
-        dice_roll = dice_1 + dice_2
-
-        if dice_roll == 7: #Bandit/Pirate
+    def run_turn(self):
+        p = self.players[self.player_turn]
+        if self.is_founding_turn():
             pass
-        else: #Normal play
-            self.add_rescources(dice_roll)
+        else: 
+            #Taxes
+            self.add_taxes(p)
+
+            #Resources
+            #Roll dice
+            dice_1 = dice.roll_dice(6)
+            dice_2 = dice.roll_dice(6)
+            dice_roll = dice_1 + dice_2
+
+            if dice_roll == 7: #Bandit/Pirate
+                pass
+            else: #Normal play
+                self.add_rescources(dice_roll)
+
+        #Draw updates
+        self.draw()
     
 
     def get_population(self, p):
@@ -91,11 +132,29 @@ class Game:
             for x in range(self.map.width):
                 for y in range(self.map.height):
                     #If the current hex has the correct rescource numbers
-                    if self.map.world[x][y].rescource_number == number:
-                        #Figure out who gets rescources (and what)
-                        pID, rescource_type = self.map.world[x][y].who_gets_rescources()
-                        #If this hex is owned by the current player
-                        if pID == p.ID:
-                            #Add rescources
-                            p.inventory.add(self.map.world[x][y].get_rescources(rescource_type))
+                    if self.map.world[x][y].rescource_number != number:
+                        continue
+                    #Figure out who gets rescources (and what)
+                    pID, rescource_type = self.map.world[x][y].who_gets_rescources()
+                    if pID is None: #If no one gets rescource
+                        continue
+                    #If this hex is owned by the current player
+                    if pID == p.ID:
+                        #Add rescources
+                        p.inventory.add(self.map.world[x][y].get_rescources(rescource_type))
+
+
+    def on_hex_click(self, e, q, r, hex_tile):
+        #print(f"Hex clicked at ({q},{r}), type: {type(hex_tile).__name__}")
+        if self.is_founding_turn():
+            hex_tile.buildings.append(building.Village(self.get_player_turn().ID))
+            self.next_turn()
+        else:
+            hex_tile.units.append(unit.Warrior(self.get_player_turn().ID))
+
+        self.draw()
+
+    def on_unit_click(self, e, q, r, hex_tile):
+        pass
+
 

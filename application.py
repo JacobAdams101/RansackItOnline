@@ -47,10 +47,10 @@ class GameFrame(BaseFrame):
         # Configure 3 columns
         my_game = game.Game(self)
 
-        self.canvas = my_game.draw()
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        self.canvas.grid(row=0, column=0, sticky="nsew")
+        my_game.start_game()
+        #self.grid_rowconfigure(0, weight=1)
+        #self.grid_columnconfigure(0, weight=1)
+        my_game.canvas.grid(row=0, column=0, sticky="nsew")
         
 
 

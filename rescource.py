@@ -37,10 +37,8 @@ class Rescource:
 class Inventory:
     def __init__(
             self, 
-            name, 
             inventory=[Rescource(RESCOURCE_FOOD, 2), Rescource(RESCOURCE_WOOD, 2), Rescource(RESCOURCE_BRICK, 2), Rescource(RESCOURCE_COIN, 2)]
             ):
-        self.name = name
         self.inventory = inventory
 
     def add(self, rescources=[]):
@@ -101,3 +99,11 @@ class Inventory:
                 del self.inventory[i]
             else:
                 i += 1
+    
+    def draw(self, canvas, x_origin, y_origin, box_size = 64, step_size = 10):
+        for i, r in enumerate(self.inventory):
+            x = i * (box_size+step_size) + x_origin
+            y = y_origin
+            canvas.create_rectangle(x, y, x+box_size, y+box_size, fill="#a0a0a0")
+            canvas.create_text(x+(box_size//2), y+(box_size//2)+6, text=r.name, fill="black", font=("Arial",12))
+            canvas.create_text(x+(box_size//2), y+(box_size//2)-6, text=r.amount, fill="black", font=("Arial",12))
