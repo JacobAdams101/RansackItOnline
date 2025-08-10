@@ -46,11 +46,25 @@ class Game:
         #Create the map
         self.map = map.Map(20, 10, self.canvas, self.on_hex_click, self.on_unit_click)
 
+        self.selected = None
+
     def is_founding_turn(self):
         return self.round == 0
     
     def get_player_turn(self):
         return self.players[self.player_turn]
+    
+
+    def draw_selected(self, canvas, x_origin, y_origin, box_width=128, box_height = 64):
+        canvas.create_rectangle(x_origin, y_origin, x_origin+box_width, y_origin+box_height, fill="#a0a0a0")
+        canvas.create_text(x_origin+(box_width//2), y_origin+(box_height//2)-6, text="Selected", fill="black", font=("Arial",12))
+        message = None
+        if self.selected is not None:
+            if isinstance(self.selected, unit.Unit):
+                message = f"Unit {type(self.selected).__name__}"
+            elif isinstance(self.selected, map.Hex):
+                message = f"Hex {type(self.selected).__name__}"
+        canvas.create_text(x_origin+(box_width//2), y_origin+(box_height//2)+6, text=message, fill="black", font=("Arial",12)) 
     
     def draw(self):
         self.canvas.delete("all")
@@ -60,10 +74,14 @@ class Game:
             self.players[self.player_turn].draw(self.canvas, 0, self.height-100, message="Found your city")
 
             self.players[self.player_turn].inventory.draw(self.canvas, 138, self.height-100)
+
+            self.draw_selected(self.canvas, self.width-200, self.height-100, box_width=128, box_height = 64)
         else:
             self.players[self.player_turn].draw(self.canvas, 0, self.height-100, message="It's your turn!")
 
             self.players[self.player_turn].inventory.draw(self.canvas, 138, self.height-100)
+
+            self.draw_selected(self.canvas, self.width-200, self.height-100, box_width=128, box_height = 64)
 
         return self.canvas
     
@@ -77,6 +95,8 @@ class Game:
             self.round += 1
 
         self.run_turn()
+
+        self.selected = None
 
     #An alias for run turn to make it more obvious this is how the game starts
     def start_game(self):
@@ -122,8 +142,11 @@ class Game:
 
     def add_taxes(self, p):
         pop = self.get_population(p)
+
+        tax = (pop+1)//2
+        print(f"ADDING TAX {tax} (population {pop})")
         #Tax = pop /2
-        p.inventory.add([rescource.Rescource(rescource.RESCOURCE_COIN, (pop+1)//2)])
+        p.inventory.add([rescource.Rescource(rescource.RESCOURCE_COIN, tax)])
 
     def add_rescources(self, number):
         #Loop through all players
@@ -152,10 +175,15 @@ class Game:
         else:
             hex_tile.units.append(unit.Warrior(self.get_player_turn().ID))
 
+        self.selected = hex_tile
+
         self.draw()
 
     def on_unit_click(self, e, q, r, hex_tile, unit):
         print(f"Hex clicked at ({q},{r}), hex type: {type(hex_tile).__name__}, unit type: {type(unit).__name__}")
-        pass
+
+        self.selected = unit
+        
+        self.draw()
 
 
