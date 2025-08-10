@@ -90,11 +90,25 @@ def draw_hex(canvas, q, r, y_offset, fill_color, harbor, units, buildings, resco
     if harbor is not None:
         harbor.draw(canvas, q, r)
 
+    unit_objects = []
+    unit_text_objects = []
     for i, u in enumerate(units):
         angle = (60 * i) * 3.14159 / 180
         x_i = x_center + (hex_size//2) * (math.sin(angle))
         y_i = y_center + (hex_size//2) * (math.cos(angle))
-        u.draw(canvas, x_i, y_i)
+        unit_object, unit_text_object = u.draw(canvas, x_i, y_i)
+        unit_objects.append(unit_object)
+        unit_text_objects.append(unit_text_object)
+
+    building_objects = []
+    building_text_objects = []
+    for i, b in enumerate(buildings):
+        angle = (60 * (i+3)) * 3.14159 / 180
+        x_i = x_center + (hex_size//2) * (math.sin(angle))
+        y_i = y_center + (hex_size//2) * (math.cos(angle))
+        building_object, building_text_object = b.draw(canvas, x_i, y_i)
+        building_objects.append(building_object)
+        building_text_objects.append(building_text_object)
 
     hex_select_object = canvas.create_oval(
             x_center-RESCOURCE_NUMBER_RADIUS-3, 
@@ -106,10 +120,21 @@ def draw_hex(canvas, q, r, y_offset, fill_color, harbor, units, buildings, resco
             width=4
             )
     
+    hex_avaliable_object = canvas.create_oval(
+            x_center-RESCOURCE_NUMBER_RADIUS-6, 
+            y_center-RESCOURCE_NUMBER_RADIUS-6, 
+            x_center+RESCOURCE_NUMBER_RADIUS+6, 
+            y_center+RESCOURCE_NUMBER_RADIUS+6, 
+            outline="blue", 
+            fill="", 
+            width=4
+            )
+    
     canvas.itemconfigure(hex_select_object, state="hidden")
+    canvas.itemconfigure(hex_avaliable_object, state="hidden")
 
 
-    return hex_object, hex_select_object
+    return hex_object, hex_select_object, hex_avaliable_object, building_objects, building_text_objects, unit_objects, unit_text_objects
 
 def draw_harbor(canvas, q, r, fill_color, facing, hex_size=HEX_SIZE):
     # Center position of hex
@@ -157,20 +182,36 @@ class Hex:
         self.buildings = []
         self.units = []
 
-        self.y_offset = -8
+        self.y_offset = -4
 
         self.hex_object = None
         self.hex_select_object = None
+        self.hex_avaliable_object = None
+
+        self.unit_objects = None
+        self.unit_text_objects = None
+
+        self.building_objects = None
+        self.building_text_objects = None
 
     def draw(self, canvas, q, r):
         pass
     
 
-    def get_objects(self):
-        return [self.hex_object, self.hex_select_object]
+    def get_hex_objects(self):
+        objects = [self.hex_object, self.hex_select_object, self.hex_avaliable_object]
+        objects.extend(self.building_objects)
+        objects.extend(self.building_text_objects)
+        return objects
+    
+    def get_unit_objects(self):
+        return self.unit_objects
+    
+    def get_unit_text_objects(self):
+        return self.unit_text_objects
     
     def bind_elements(self, canvas, func, event):
-        for o in self.get_objects():
+        for o in self.get_hex_objects():
             canvas.tag_bind(
                 o, 
                 event, 
@@ -223,9 +264,9 @@ class OceanHex(Hex):
         self.y_offset = 0
         
     def draw(self, canvas, q, r):
-        self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
+        self.hex_object, self.hex_select_object, self.hex_avaliable_object, self.building_objects, self.building_text_objects, self.unit_objects, self.unit_text_objects = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
 
-    def get_rescources(type):
+    def get_rescources(self, type):
         return []
         
 class DesertHex(Hex):
@@ -240,9 +281,9 @@ class DesertHex(Hex):
             )
     
     def draw(self, canvas, q, r):
-        self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
+        self.hex_object, self.hex_select_object, self.hex_avaliable_object, self.building_objects, self.building_text_objects, self.unit_objects, self.unit_text_objects = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
 
-    def get_rescources(type):
+    def get_rescources(self, type):
         return []
         
 class PlainsHex(Hex):
@@ -257,9 +298,9 @@ class PlainsHex(Hex):
             )
         
     def draw(self, canvas, q, r):
-        self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
+        self.hex_object, self.hex_select_object, self.hex_avaliable_object, self.building_objects, self.building_text_objects, self.unit_objects, self.unit_text_objects = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=None)
 
-    def get_rescources(type):
+    def get_rescources(self, type):
         return []
         
 class FarmHex(Hex):
@@ -274,9 +315,9 @@ class FarmHex(Hex):
             )
         
     def draw(self, canvas, q, r):
-        self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
+        self.hex_object, self.hex_select_object, self.hex_avaliable_object, self.building_objects, self.building_text_objects, self.unit_objects, self.unit_text_objects = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
 
-    def get_rescources(type):
+    def get_rescources(self, type):
         if type == "VILLAGE":
             return [rescource.Rescource(rescource.RESCOURCE_FOOD, 1)]
         elif type == "TOWN":
@@ -298,9 +339,9 @@ class ForestHex(Hex):
             )
         
     def draw(self, canvas, q, r):
-        self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
+        self.hex_object, self.hex_select_object, self.hex_avaliable_object, self.building_objects, self.building_text_objects, self.unit_objects, self.unit_text_objects = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
 
-    def get_rescources(type):
+    def get_rescources(self, type):
         if type == "VILLAGE":
             return [rescource.Rescource(rescource.RESCOURCE_WOOD, 1)]
         elif type == "TOWN":
@@ -322,9 +363,9 @@ class HillsHex(Hex):
             )
         
     def draw(self, canvas, q, r):
-        self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
+        self.hex_object, self.hex_select_object, self.hex_avaliable_object, self.building_objects, self.building_text_objects, self.unit_objects, self.unit_text_objects  = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
 
-    def get_rescources(type):
+    def get_rescources(self, type):
         if type == "VILLAGE":
             return [rescource.Rescource(rescource.RESCOURCE_BRICK, 1)]
         elif type == "TOWN":
@@ -346,9 +387,9 @@ class MountainsHex(Hex):
             )
         
     def draw(self, canvas, q, r):
-        self.hex_object, self.hex_select_object = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
+        self.hex_object, self.hex_select_object, self.hex_avaliable_object, self.building_objects, self.building_text_objects, self.unit_objects, self.unit_text_objects = draw_hex(canvas, q, r, self.y_offset, self.hex_colour, self.harbor, self.units, self.buildings, rescource_number=self.rescource_number)
 
-    def get_rescources(type):
+    def get_rescources(self, type):
         if type == "VILLAGE":
             return [rescource.Rescource(rescource.RESCOURCE_ORE, 1)]
         elif type == "TOWN":
@@ -481,6 +522,20 @@ class Map:
                     lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_click_func(e, q, r, hex_tile), #NOTE: lambda using optionals as otherwise broken
                     "<Button-1>"
                     )
+                
+                #Mouse click unit
+                for i, u in enumerate(hex_tile.get_unit_objects()):
+                    self.canvas.tag_bind(
+                        u, 
+                        "<Button-1>", 
+                        lambda e, q=q, r=r, hex_tile=hex_tile, unit=hex_tile.units[i]: self.on_unit_click_func(e, q, r, hex_tile, unit)
+                        )
+                for i, u in enumerate(hex_tile.get_unit_text_objects()):
+                    self.canvas.tag_bind(
+                        u, 
+                        "<Button-1>", 
+                        lambda e, q=q, r=r, hex_tile=hex_tile, unit=hex_tile.units[i]: self.on_unit_click_func(e, q, r, hex_tile, unit)
+                        )
 
                 #Mouse enter hex
                 hex_tile.bind_elements( 
@@ -488,6 +543,7 @@ class Map:
                     lambda e, q=q, r=r, hex_tile=hex_tile: self.on_hex_enter(e, q, r, hex_tile), #NOTE: lambda using optionals as otherwise broken
                     "<Enter>"
                     )
+                
                 
                 
 

@@ -145,7 +145,7 @@ class Game:
 
 
     def on_hex_click(self, e, q, r, hex_tile):
-        #print(f"Hex clicked at ({q},{r}), type: {type(hex_tile).__name__}")
+        print(f"Hex clicked at ({q},{r}), type: {type(hex_tile).__name__}")
         if self.is_founding_turn():
             hex_tile.buildings.append(building.Village(self.get_player_turn().ID))
             self.next_turn()
@@ -154,7 +154,8 @@ class Game:
 
         self.draw()
 
-    def on_unit_click(self, e, q, r, hex_tile):
+    def on_unit_click(self, e, q, r, hex_tile, unit):
+        print(f"Hex clicked at ({q},{r}), hex type: {type(hex_tile).__name__}, unit type: {type(unit).__name__}")
         pass
 
 

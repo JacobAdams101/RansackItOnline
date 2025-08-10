@@ -17,7 +17,7 @@ import player
 UNIT_RADIUS = 6
 
 def draw_unit(canvas, x, y, colour, text, unit_radius=UNIT_RADIUS):
-    unit_object = canvas.create_rectangle(x-unit_radius, y-unit_radius, x+unit_radius, y+unit_radius, fill=colour)
+    unit_object = canvas.create_rectangle(x-unit_radius, y-unit_radius, x+unit_radius, y+unit_radius, fill=colour, outline="black")
     unit_text_object = canvas.create_text(x, y, text=text, fill="black", font=("Arial",8))
     return unit_object, unit_text_object
 
@@ -27,7 +27,7 @@ class Unit:
         self.unit_colour = player.PLAYER_COLOURS[owner_ID]
 
     def draw(self, canvas, x, y):
-        draw_unit(canvas, x, y, self.unit_colour, "NA")
+        return draw_unit(canvas, x, y, self.unit_colour, "NA")
 
     def get_dice(self):
         return 0
@@ -46,7 +46,7 @@ class Worker(Unit):
         super().__init__(owner_ID)
 
     def draw(self, canvas, x, y):
-        draw_unit(canvas, x, y, self.unit_colour, "B")
+        return draw_unit(canvas, x, y, self.unit_colour, "B")
 
     def get_dice(self):
         return 1
@@ -65,7 +65,7 @@ class Warrior(Unit):
         super().__init__(owner_ID)
 
     def draw(self, canvas, x, y):
-        draw_unit(canvas, x, y, self.unit_colour, "W")
+        return draw_unit(canvas, x, y, self.unit_colour, "W")
 
     def get_dice(self):
         return 4
@@ -84,7 +84,7 @@ class Knight(Unit):
         super().__init__(owner_ID)
 
     def draw(self, canvas, x, y):
-        draw_unit(canvas, x, y, self.unit_colour, "K")
+        return draw_unit(canvas, x, y, self.unit_colour, "K")
 
     def get_dice(self):
         return 8
@@ -103,7 +103,7 @@ class Cannon(Unit):
         super().__init__(owner_ID)
 
     def draw(self, canvas, x, y):
-        draw_unit(canvas, x, y, self.unit_colour, "C")
+        return draw_unit(canvas, x, y, self.unit_colour, "C")
 
     def get_dice(self):
         return 12
@@ -122,7 +122,7 @@ class Dragon(Unit):
         super().__init__(owner_ID)
 
     def draw(self, canvas, x, y):
-        draw_unit(canvas, x, y, self.unit_colour, "D")
+        return draw_unit(canvas, x, y, self.unit_colour, "D")
 
     def get_dice(self):
         return 20
